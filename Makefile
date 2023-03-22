@@ -15,7 +15,9 @@ migratedown:
 
 sqlc:
 	sqlc generate
+test:
+	go test -v ./...
 
 # history | grep "docker run"
 
-.PHONY: createdb dropdb postgres migrateup migratedown sqlc
+.PHONY: createdb dropdb postgres migrateup migratedown sqlc test
