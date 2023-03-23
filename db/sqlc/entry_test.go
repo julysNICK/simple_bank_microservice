@@ -2,7 +2,6 @@ package db
 
 import (
 	"context"
-	"database/sql"
 	"testing"
 	"time"
 
@@ -11,7 +10,7 @@ import (
 
 func CreateRandomEntry(t *testing.T) Entry {
 	args := CreateEntryParams{
-		AccountID: sql.NullInt64{Int64: 24, Valid: true},
+		AccountID: 24,
 		Amount:    1000,
 	}
 
@@ -19,7 +18,7 @@ func CreateRandomEntry(t *testing.T) Entry {
 	require.NoError(t, err)
 	require.NotEmpty(t, entry)
 
-	require.Equal(t, args.AccountID.Int64, entry.AccountID.Int64)
+	require.Equal(t, args.AccountID, entry.AccountID)
 	require.Equal(t, args.Amount, entry.Amount)
 	require.NotZero(t, entry.ID)
 	require.NotZero(t, entry.CreatedAt)
@@ -50,7 +49,7 @@ func TestListEntries(t *testing.T) {
 	}
 
 	arg := ListEntriesParams{
-		AccountID: sql.NullInt64{Int64: 24, Valid: true},
+		AccountID: 24,
 		Limit:     5,
 		Offset:    5,
 	}
