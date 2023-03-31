@@ -16,7 +16,7 @@ migratedown:
 sqlc:
 	sqlc generate
 test:
-	go test -v ./...
+	go test -v -cover ./...
 
 # history | grep "docker run"
 
