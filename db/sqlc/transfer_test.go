@@ -11,10 +11,10 @@ import (
 )
 
 
-func CreateRandomTransfer(t *testing.T) Transfer {
+func CreateRandomTransfer(t *testing.T, account1 Account, account2 Account) Transfer {
 	arg := CreateTransferParams{
-		FromAccountID: 24,
-		ToAccountID:   26,
+		FromAccountID: account1.ID,
+		ToAccountID:   account2.ID,
 		Amount:        utils.RandomMoney(),
 	}
 
@@ -31,13 +31,17 @@ func CreateRandomTransfer(t *testing.T) Transfer {
 }
 
 func TestCreateTransfer(t *testing.T) {
-	CreateRandomTransfer(t)
+	account1 := createRandomAccount(t)
+	account2 := createRandomAccount(t)
+	CreateRandomTransfer(t, account1, account2)
 }
 
 
 
 func TestGetTransfer(t *testing.T){
-	transfer1 := CreateRandomTransfer(t)
+	account1 := createRandomAccount(t)
+	account2 := createRandomAccount(t)
+	transfer1 := CreateRandomTransfer(t, account1, account2)
 
 	transfer2, err := testQueries.GetTransfer(context.Background(), transfer1.ID)
 	require.NoError(t, err)
@@ -52,12 +56,14 @@ func TestGetTransfer(t *testing.T){
 
 
 func TestListTransfers(t *testing.T){
+	account1 := createRandomAccount(t)
+	account2 := createRandomAccount(t)
 	for i := 0; i < 10; i++ {
-		CreateRandomTransfer(t)
+		CreateRandomTransfer(t, account1, account2)
 	}
 
 	arg := ListTransfersParams{
-		FromAccountID: 24,
+		FromAccountID: account1.ID,
 		Limit: 5,
 		Offset: 5,
 	}
@@ -75,7 +81,9 @@ func TestListTransfers(t *testing.T){
 
 
 func TestDeleteTransfer(t *testing.T){
-	transfer := CreateRandomTransfer(t)
+	account1 := createRandomAccount(t)
+	account2 := createRandomAccount(t)
+	transfer := CreateRandomTransfer(t, account1, account2)
 	err := testQueries.DeleteTransfer(context.Background(), transfer.ID)
 	require.NoError(t, err)
 
