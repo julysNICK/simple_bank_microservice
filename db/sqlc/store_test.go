@@ -160,7 +160,7 @@ func TestTransferTxDeadLock(t *testing.T) {
 	updateAccount2, err := testQueries.GetAccount(context.Background(), account2.ID)
 	require.NoError(t, err)
 
-	fmt.Println(">> after transfer", updateAccount1.Balance, updateAccount2.Balance)
+	fmt.Println(">>> after transfer", updateAccount1.Balance, updateAccount2.Balance)
 	require.Equal(t, account1.Balance, updateAccount1.Balance)
 	require.Equal(t, account2.Balance, updateAccount2.Balance)
 
