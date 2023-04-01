@@ -5,7 +5,7 @@ import (
 	db "github.com/julysNICK/simplebank/db/sqlc"
 )
 
-type Server struct {
+type 	Server struct {
 	store *db.Store
 	router *gin.Engine
 }
