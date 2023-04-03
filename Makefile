@@ -19,7 +19,9 @@ test:
 	go test -v -cover ./...
 server:
 	go run main.go
+mock:
+	mockgen -package mockdb -destination db/mock/store.go github.com/julysNICK/simplebank/db/sqlc Store
 
 # history | grep "docker run"
 
-.PHONY: createdb dropdb postgres migrateup migratedown sqlc test server
+.PHONY: createdb dropdb postgres migrateup migratedown sqlc test server mock
