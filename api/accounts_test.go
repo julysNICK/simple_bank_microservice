@@ -18,10 +18,13 @@ import (
 )
 
 func TestListAccounts(t *testing.T) {
+	user := randomUser()
+	user2 := randomUser()
+	user3 := randomUser()
 	lists := []db.Account{
-		randomAccount(),
-		randomAccount(),
-		randomAccount(),
+		randomAccount(user.Username),
+		randomAccount(user2.Username),
+		randomAccount(user3.Username),
 	}
 
 	testCases := []struct {
@@ -82,7 +85,8 @@ func TestListAccounts(t *testing.T) {
 	}
 }
 func TestCreateAccountAPI(t *testing.T) {
-	account := randomAccount()
+	user := randomUser()
+	account := randomAccount(user.Username)
 
 	testCases := []struct {
 		name          string
@@ -144,7 +148,8 @@ func TestCreateAccountAPI(t *testing.T) {
 	}
 }
 func TestGetAccountAPI(t *testing.T) {
-	account := randomAccount()
+	user := randomUser()
+	account := randomAccount(user.Username)
 
 	testCases := []struct {
 		name          string
@@ -223,10 +228,10 @@ func TestGetAccountAPI(t *testing.T) {
 
 }
 
-func randomAccount() db.Account {
+func randomAccount(ownerName string) db.Account {
 	return db.Account{
 		ID:       utils.RandomINt(1, 1000),
-		Owner:    utils.RandomOwner(),
+		Owner:    ownerName,
 		Balance:  utils.RandomMoney(),
 		Currency: utils.RandomCurrency(),
 	}
