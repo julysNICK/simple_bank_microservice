@@ -3,6 +3,7 @@ package db
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"fmt"
 
 	_ "github.com/golang/mock/mockgen/model"
@@ -30,6 +31,31 @@ func NewStore(db *sql.DB) Store {
 
 // execTx executes a function within a database transaction
 func (store *SQLStore) execTx(ctx context.Context, fn func(*Queries) error) error {
+
+	// if fn == nil {
+	// 	return fmt.Errorf("fn is nil")
+	// }
+
+	// if ctx == nil {
+	// 	return fmt.Errorf("ctx is nil")
+	// }
+
+	// if store.db == nil {
+	// 	return fmt.Errorf("db is nil")
+	// }
+
+	// if store.Queries == nil {
+	// 	return fmt.Errorf("queries is nil")
+	// }
+
+	// if store.Queries.db == nil {
+	// 	return fmt.Errorf("queries.db is nil")
+	// }
+
+	if store == nil || store.db == nil {
+		return errors.New("store or store.db is nil")
+	}
+
 	tx, err := store.db.BeginTx(ctx, nil)
 	if err != nil {
 		return err

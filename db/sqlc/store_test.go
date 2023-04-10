@@ -30,6 +30,9 @@ func TestTransferTx(t *testing.T) {
 				Amount:        amount,
 			})
 
+			require.NotEmpty(t, result)
+			require.NoError(t, err)
+
 			errs <- err
 			results <- result
 		}()
