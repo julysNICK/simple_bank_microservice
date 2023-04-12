@@ -17,7 +17,9 @@ sqlc:
 	sqlc generate
 test:
 	go test -v -cover ./...
+server:
+	go run main.go
 
 # history | grep "docker run"
 
-.PHONY: createdb dropdb postgres migrateup migratedown sqlc test
+.PHONY: createdb dropdb postgres migrateup migratedown sqlc test server
