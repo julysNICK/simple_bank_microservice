@@ -76,22 +76,19 @@ func (server *Server) createUser(ctx *gin.Context) {
 
 }
 
-
 type loginUserRequest struct {
 	Username string `json:"username" binding:"required,alphanum"`
 	Password string `json:"password" binding:"required,min=6"`
 }
 
 type loginUserResponse struct {
-	AccessToken string `json:"acess_token"`
-	User userResponse `json:"user"`
-
+	AccessToken string       `json:"acess_token"`
+	User        userResponse `json:"user"`
 }
 
-
-func (server *Server) loginUser(ctx *gin.Context){
+func (server *Server) loginUser(ctx *gin.Context) {
 	var req loginUserRequest
-		if err := ctx.ShouldBindJSON(&req); err != nil {
+	if err := ctx.ShouldBindJSON(&req); err != nil {
 		ctx.JSON(http.StatusBadRequest, errorResponse(err))
 		return
 	}
@@ -105,13 +102,13 @@ func (server *Server) loginUser(ctx *gin.Context){
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 	}
 
-	err = utils.CheckPasswordHash(user.HashedPassword, req.Password)
+	err = utils.CheckPasswordHash(req.Password, user.HashedPassword)
 	if err != nil {
 		ctx.JSON(http.StatusUnauthorized, errorResponse(err))
 		return
 	}
 
-	accessToken, _, err  := server.tokenMaker.CreateToken(user.Username, server.config.AccessTokenDuration)
+	accessToken, _, err := server.tokenMaker.CreateToken(user.Username, server.config.AccessTokenDuration)
 
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
@@ -120,11 +117,9 @@ func (server *Server) loginUser(ctx *gin.Context){
 
 	rsp := loginUserResponse{
 		AccessToken: accessToken,
-		User: newUserResponse(user),
+		User:        newUserResponse(user),
 	}
-	
 
 	ctx.JSON(http.StatusOK, rsp)
-
 
 }

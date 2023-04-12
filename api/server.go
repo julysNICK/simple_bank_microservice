@@ -12,24 +12,23 @@ import (
 )
 
 type Server struct {
-	config utils.Config
-	store  db.Store
+	config     utils.Config
+	store      db.Store
 	tokenMaker token.Maker
-	router *gin.Engine
+	router     *gin.Engine
 }
-//NewServer creates a new HTTP server and setup routing
-func NewServer(config utils.Config,store db.Store) (*Server, error) {
-	print("config.TokenSymmetricKey" + config.TokenSymmetricKey)
+
+// NewServer creates a new HTTP server and setup routing
+func NewServer(config utils.Config, store db.Store) (*Server, error) {
 	tokenMaker, err := token.NewPasetoMaker(config.TokenSymmetricKey)
 	if err != nil {
 		return nil, fmt.Errorf("cannot create token maker: %w", err)
 	}
 	server := &Server{
-		config: config,
-		store: store,
+		config:     config,
+		store:      store,
 		tokenMaker: tokenMaker,
 	}
-
 
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
 		v.RegisterValidation("currency", validCurrency)
@@ -38,28 +37,29 @@ func NewServer(config utils.Config,store db.Store) (*Server, error) {
 	return server, nil
 }
 
-
-func (server *Server) setupRouter(){
+func (server *Server) setupRouter() {
 	router := gin.Default()
 	router.POST("/users", server.createUser)
 	router.POST("/users/login", server.loginUser)
 
-	router.POST("/accounts", server.createAccount)
-	router.GET("/accounts/:id", server.getAccount)
-	router.GET("/accounts", server.listAccounts)
+	authRoutes := router.Group("/").Use(authMiddleware(server.tokenMaker))
 
-	router.POST("/transfers", server.createTransfer)
+	authRoutes.POST("/accounts", server.createAccount)
+	authRoutes.GET("/accounts/:id", server.getAccount)
+	authRoutes.GET("/accounts", server.listAccounts)
+
+	authRoutes.POST("/transfers", server.createTransfer)
 
 	server.router = router
-	
+
 }
 
-//Start starts the HTTP server
+// Start starts the HTTP server
 func (server *Server) Start(address string) error {
 	return server.router.Run(address)
 }
 
-//errorResponse is a helper function to format error messages
+// errorResponse is a helper function to format error messages
 func errorResponse(err error) gin.H {
 	return gin.H{"error": err.Error()}
 }
