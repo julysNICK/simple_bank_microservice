@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"log"
 
+	_ "github.com/golang/mock/mockgen/model"
 	"github.com/julysNICK/simplebank/api"
 	db "github.com/julysNICK/simplebank/db/sqlc"
 	"github.com/julysNICK/simplebank/utils"
@@ -11,6 +12,7 @@ import (
 )
 
 func main() {
+
 
 	config, err := utils.LoadConfig(".") // load config from .env file
 

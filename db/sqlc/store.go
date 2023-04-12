@@ -3,24 +3,31 @@ package db
 import (
 	"context"
 	"database/sql"
+
+	_ "github.com/golang/mock/mockgen/model"
 )
 
-// Store is a wrapper around sql.DB that provides a set of methods
-type Store struct {
+// Store provides all the database operations
+type Store interface {
+	Querier
+	TransferTx(ctx context.Context, arg TransferTxParams) (TransferTxResult, error)
+}
+// SQLStore is a wrapper around queries that provides a set of methods
+type SQLStore struct {
 	*Queries
 	db *sql.DB
 }
 
 // NewStore creates a new store
-func NewStore(db *sql.DB) *Store {
-	return &Store{
+func NewStore(db *sql.DB) Store {
+	return &SQLStore{
 		db:      db,
 		Queries: New(db),
 	}
 }
 
 // execTx executes a function within a database transaction
-func (store *Store) execTx(ctx context.Context, fn func(queries *Queries) error) error {
+func (store *SQLStore) execTx(ctx context.Context, fn func(queries *Queries) error) error {
 	tx, err := store.db.BeginTx(ctx, nil)
 	if err != nil {
 		return err
@@ -54,7 +61,7 @@ type TransferTxResult struct {
 
 // TransferTx performs a money transfer from one account to another
 // It creates a new transfer record, updates the balance of two accounts,
-func (store *Store) TransferTx(ctx context.Context, arg TransferTxParams) (TransferTxResult, error) {
+func (store *SQLStore) TransferTx(ctx context.Context, arg TransferTxParams) (TransferTxResult, error) {
 	var result TransferTxResult
 
 	err := store.execTx(ctx, func(q *Queries) error {

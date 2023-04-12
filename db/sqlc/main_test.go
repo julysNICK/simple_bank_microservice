@@ -6,6 +6,7 @@ import (
 	"os"
 	"testing"
 
+	_ "github.com/golang/mock/mockgen/model"
 	"github.com/julysNICK/simplebank/utils"
 	_ "github.com/lib/pq"
 )
