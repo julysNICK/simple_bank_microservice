@@ -76,7 +76,7 @@ func TestListAccounts(t *testing.T) {
 			store := mockdb.NewMockStore(gomock.NewController(t))
 			testCase.buildStubs(store)
 
-			server := NewServer(store)
+			server := newTestServer(t, store)
 			recorder := httptest.NewRecorder()
 			request, _ := http.NewRequest(http.MethodGet, fmt.Sprintf("/accounts?page_id=%d&limit=%d", testCase.limit, testCase.offset), nil)
 			server.router.ServeHTTP(recorder, request)
@@ -133,7 +133,7 @@ func TestCreateAccountAPI(t *testing.T) {
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
 			store := mockdb.NewMockStore(gomock.NewController(t))
-			server := NewServer(store)
+			server := newTestServer(t,store)
 
 			tc.buildStubs(store)
 
@@ -214,7 +214,7 @@ func TestGetAccountAPI(t *testing.T) {
 			store := mockdb.NewMockStore(ctrl)
 			tc.buildStubs(store)
 
-			server := NewServer(store)
+			server := newTestServer(t,store)
 			recorder := httptest.NewRecorder()
 
 			url := fmt.Sprintf("/accounts/%d", tc.AccountID)
