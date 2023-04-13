@@ -30,9 +30,6 @@ func TestTransferTx(t *testing.T) {
 				Amount:        amount,
 			})
 
-			require.NotEmpty(t, result)
-			require.NoError(t, err)
-
 			errs <- err
 			results <- result
 		}()
@@ -43,6 +40,7 @@ func TestTransferTx(t *testing.T) {
 
 	for i := 0; i < n; i++ {
 		err := <-errs
+		fmt.Println(">> err:", err)
 		require.NoError(t, err)
 
 		result := <-results
