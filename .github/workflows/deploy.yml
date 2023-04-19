@@ -16,14 +16,14 @@
       runs-on: ubuntu-latest
 
       steps:
-      - name: Checkout repo
+      - name: Checkout repo golang
         uses: actions/checkout@v3
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2 # More information on this action can be found below in the 'AWS Credentials' section
+        uses: aws-actions/configure-aws-credentials@v2 
         with:
           role-to-assume: arn:aws:iam::404180347284:role/OIDC_Link_deployment
-          aws-region: us-east-2
+          aws-region: us-east-1
 
       - name: Login to Amazon ECR
         id: login-ecr
