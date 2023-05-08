@@ -74,6 +74,8 @@ func TestCreateUser(t *testing.T) {
 					FullName: user.FullName,
 				}
 				store.EXPECT().CreateUser(gomock.Any(), EqCreateUserParams(arg, passwordHash)).Times(1).Return(user, nil)
+
+				// store.EXPECT().CreateSession(gomock.Any(), gomock.Any()).Times(1).Return(db.Session{}, nil)
 			},
 			checkResponse: func(recorder *httptest.ResponseRecorder) {
 				require.Equal(t, http.StatusOK, recorder.Code)
