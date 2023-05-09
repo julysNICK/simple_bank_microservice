@@ -43,6 +43,8 @@ proto:
 	protoc --proto_path=proto --go_out=pb --go_opt=paths=source_relative \
   --go-grpc_out=pb --go-grpc_opt=paths=source_relative \
   proto/*.proto
-# history | grep "docker run"
+evans:
+	evans --host localhost --port 9090 -r repl
+# history | grep "docker run" sudo systemctl start docker sudo docker start postgres12	
 
 .PHONY: createdb dropdb postgres migrateup migratedown migrateup1 migratedown1 db_docs db_schema sqlc test server mock proto

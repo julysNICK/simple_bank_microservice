@@ -9,6 +9,7 @@ import (
 	"github.com/julysNICK/simplebank/api"
 	db "github.com/julysNICK/simplebank/db/sqlc"
 	"github.com/julysNICK/simplebank/gapi"
+	"github.com/julysNICK/simplebank/pb"
 	"github.com/julysNICK/simplebank/utils"
 	_ "github.com/lib/pq"
 	"google.golang.org/grpc"
@@ -16,7 +17,6 @@ import (
 )
 
 func main() {
-
 
 	config, err := utils.LoadConfig(".") // load config from .env file
 
@@ -32,50 +32,49 @@ func main() {
 
 	store := db.NewStore(conn)
 
-	server, err := api.NewServer(*config, store)
-	
-	if err != nil {
-		print("config.ServerAddress" + config.HTTPServerAddress)
-		log.Fatal("cannot create server: ", err)
-	}
-	err = server.Start(config.HTTPServerAddress)
+	// server, err := api.NewServer(*config, store)
 
-	if err != nil {
-		log.Fatal("cannot start server: ", err)
-	}
+	// if err != nil {
+	// 	print("config.ServerAddress" + config.HTTPServerAddress)
+	// 	log.Fatal("cannot create server: ", err)
+	// }
+	// err = server.Start(config.HTTPServerAddress)
 
+	// if err != nil {
+	// 	log.Fatal("cannot start server: ", err)
+	// }
+	runGRPCServer(config, store)
 }
 
-
-func runGRPCServer(config *utils.Config, store db.Store){
+func runGRPCServer(config *utils.Config, store db.Store) {
 	server, err := gapi.NewServer(*config, store)
 	if err != nil {
 		print("config.ServerAddress" + config.GRPCServerAddress)
 		log.Fatal("cannot create server: ", err)
 	}
-		grpcServer := grpc.NewServer()
-		pb.RegisterBankServiceServer(grpcServer, server)
-		reflection.Register(grpcServer)
+	grpcServer := grpc.NewServer()
+	// pb.RegisterBankServiceServer(grpcServer, server)
+	pb.RegisterSimpleBankServer(grpcServer, server)
+	reflection.Register(grpcServer)
 
-		listener, err := net.Listen("tcp", config.GRPCServerAddress)
+	listener, err := net.Listen("tcp", config.GRPCServerAddress)
 
-		if err != nil {
-			log.Fatal("cannot start server: ", err)
-		}
+	if err != nil {
+		log.Fatal("cannot start server: ", err)
+	}
 
-		log.Printf("starting gRPC server on %s", config.GRPCServerAddress)
+	log.Printf("starting gRPC server on %s", config.GRPCServerAddress)
 
-		err = grpcServer.Serve(listener)
+	err = grpcServer.Serve(listener)
 
-		if err != nil {
-			log.Fatal("cannot start server: ", err)
-		}
+	if err != nil {
+		log.Fatal("cannot start server: ", err)
+	}
 }
 
-
-func runGinServer(config *utils.Config, store db.Store){
+func runGinServer(config *utils.Config, store db.Store) {
 	server, err := api.NewServer(*config, store)
-	
+
 	if err != nil {
 		print("config.ServerAddress" + config.HTTPServerAddress)
 		log.Fatal("cannot create server: ", err)
