@@ -46,8 +46,12 @@ proto:
 	--grpc-gateway_out=pb --grpc-gateway_opt=paths=source_relative \
 	--openapiv2_out=doc/swagger --openapiv2_opt=allow_merge=true,merge_file_name=simple_bank \
   proto/*.proto
+	statik -src=doc/swagger -dest=doc -f
 evans:
 	evans --host localhost --port 9090 -r repl
+initdocker:
+	sudo systemctl start docker && sudo docker start postgres12
+
 # history | grep "docker run" sudo systemctl start docker sudo docker start postgres12	
 
-.PHONY: createdb dropdb postgres migrateup migratedown migrateup1 migratedown1 db_docs db_schema sqlc test server mock proto
+.PHONY: createdb dropdb postgres migrateup migratedown migrateup1 migratedown1 db_docs db_schema sqlc test server mock proto initdocker
