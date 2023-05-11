@@ -3,6 +3,7 @@ package gapi
 import (
 	"context"
 	"database/sql"
+	"time"
 
 	db "github.com/julysNICK/simplebank/db/sqlc"
 	"github.com/julysNICK/simplebank/pb"
@@ -14,6 +15,16 @@ import (
 )
 
 func (server *Server) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest) (*pb.UpdateUserResponse, error) {
+
+	authpayload, err := server.authorizeUser(ctx)
+
+	if err != nil {
+		return nil, unauthorizedError(err)
+	}
+
+	if authpayload.Username != req.GetUsername() {
+		return nil, status.Errorf(codes.PermissionDenied, "cannot update other user's profile")
+	}
 
 	violations := validateUpdateUserRequest(req)
 
@@ -43,6 +54,11 @@ func (server *Server) UpdateUser(ctx context.Context, req *pb.UpdateUserRequest)
 		arg.HashedPassword = sql.NullString{
 			String: hash,
 			Valid:  true,
+		}
+
+		arg.PasswordChangedAt = sql.NullTime{
+			Time:  time.Now(),
+			Valid: true,
 		}
 
 	}
