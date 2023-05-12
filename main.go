@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 
+	"github.com/hibiken/asynq"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
 
@@ -21,6 +22,7 @@ import (
 	_ "github.com/julysNICK/simplebank/doc/statik"
 	"github.com/julysNICK/simplebank/gapi"
 	"github.com/julysNICK/simplebank/pb"
+	"github.com/julysNICK/simplebank/worker"
 	"github.com/rakyll/statik/fs"
 
 	"github.com/julysNICK/simplebank/utils"
@@ -51,8 +53,16 @@ func main() {
 
 	store := db.NewStore(conn)
 
-	go runGatewayServer(config, store)
-	runGRPCServer(config, store)
+	redisOpt := asynq.RedisClientOpt{
+		Addr: config.RedisAddress,
+	}
+
+	taskDistributor := worker.NewTaskDistributor(redisOpt)
+
+	go runTaskProcessor(redisOpt, store)
+
+	go runGatewayServer(config, store, taskDistributor)
+	runGRPCServer(config, store, taskDistributor)
 }
 
 func runDBMigration(migrationURL string, dbSource string) {
@@ -72,8 +82,20 @@ func runDBMigration(migrationURL string, dbSource string) {
 
 }
 
-func runGRPCServer(config *utils.Config, store db.Store) {
-	server, err := gapi.NewServer(*config, store)
+func runTaskProcessor(redisOpt asynq.RedisClientOpt, store db.Store) {
+	taskProcessor := worker.NewRedisTaskProcessor(redisOpt, store)
+
+	log.Info().Msg("starting task processor")
+
+	err := taskProcessor.Start()
+
+	if err != nil {
+		log.Fatal().Msgf("cannot start task processor: ", err)
+	}
+}
+
+func runGRPCServer(config *utils.Config, store db.Store, taskDistributor worker.TaskDistributor) {
+	server, err := gapi.NewServer(*config, store, taskDistributor)
 	if err != nil {
 		print("config.ServerAddress" + config.GRPCServerAddress)
 		log.Fatal().Msgf("cannot create server: ", err)
@@ -99,8 +121,8 @@ func runGRPCServer(config *utils.Config, store db.Store) {
 	}
 }
 
-func runGatewayServer(config *utils.Config, store db.Store) {
-	server, err := gapi.NewServer(*config, store)
+func runGatewayServer(config *utils.Config, store db.Store, taskDistributor worker.TaskDistributor) {
+	server, err := gapi.NewServer(*config, store, taskDistributor)
 	if err != nil {
 		print("config.ServerAddress" + config.GRPCServerAddress)
 		log.Fatal().Msgf("cannot create server: ", err)
