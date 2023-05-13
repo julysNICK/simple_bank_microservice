@@ -50,9 +50,13 @@ proto:
 evans:
 	evans --host localhost --port 9090 -r repl
 initdocker:
-	sudo systemctl start docker && sudo docker start postgres12
+	sudo systemctl start docker && sudo docker start postgres12 && sudo docker start redis
 redis:
 	sudo docker run --name redis -p 6379:6379 -d redis:7-alpine
+
+new_migration:
+	migrate create -ext sql -dir db/migration -seq $(name)
+
 # history | grep "docker run" sudo systemctl start docker sudo docker start postgres12	
 
-.PHONY: createdb dropdb postgres migrateup migratedown migrateup1 migratedown1 db_docs db_schema sqlc test server mock proto initdocker redis
+.PHONY: createdb dropdb postgres migrateup migratedown migrateup1 migratedown1 db_docs db_schema sqlc test server mock proto initdocker redis new_migration

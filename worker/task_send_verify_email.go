@@ -7,6 +7,8 @@ import (
 	"fmt"
 
 	"github.com/hibiken/asynq"
+	db "github.com/julysNICK/simplebank/db/sqlc"
+	"github.com/julysNICK/simplebank/utils"
 	"github.com/rs/zerolog/log"
 )
 
@@ -52,6 +54,28 @@ func (process *RedisTaskProcessor) ProcessTaskSendVerifyEmail(ctx context.Contex
 			return fmt.Errorf("user not found: %w", asynq.SkipRetry)
 		}
 		return fmt.Errorf("cannot get user: %w", err)
+	}
+
+	verifyEmail, err := process.store.CreateVerifyEmail(ctx, db.CreateVerifyEmailParams{
+		Username:   user.Username,
+		Email:      user.Email,
+		SecretCode: utils.RandomString(32),
+	})
+
+	subject := "Verify your email"
+	verifyUrl := fmt.Sprintf("http://localhost:3000/verify?code=%s", verifyEmail.SecretCode)
+	content := fmt.Sprintf(`Click <a href="%s">here</a> to verify your email.`, verifyUrl)
+
+	to := []string{user.Email}
+
+	err = process.mail.SendEmail(subject, content, to, nil, nil, nil)
+
+	if err != nil {
+		return fmt.Errorf("cannot send verify email: %w", err)
+	}
+
+	if err != nil {
+		return fmt.Errorf("cannot create verify email: %w", err)
 	}
 
 	log.Info().Str("type", task.Type()).Bytes("payload", task.Payload()).Str("email", user.Email).Msg("send verify email")
