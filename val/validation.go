@@ -6,12 +6,10 @@ import (
 	"regexp"
 )
 
-
 var (
 	isValidUsername = regexp.MustCompile(`^[a-zA-Z0-9_]+$`).MatchString
 	isValidFullName = regexp.MustCompile(`^[a-zA-Z\s]+$`).MatchString
 )
-
 
 func ValidateString(value string, minLength int, maxLength int) error {
 	if len(value) < minLength || len(value) > maxLength {
@@ -62,3 +60,20 @@ func ValidEmail(value string) error {
 	return nil
 }
 
+func ValidateEmailId(value int64) error {
+	if value <= 0 {
+		return fmt.Errorf("invalid email id")
+	}
+
+	if value > 1000000000 {
+		return fmt.Errorf("invalid email id")
+	}
+
+	return nil
+}
+
+func ValidateSecretCode(value string) error {
+
+	return ValidateString(value, 32, 128)
+
+}

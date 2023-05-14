@@ -57,6 +57,7 @@ type Querier interface {
 	// RETURNING *;
 	// method when not all fields are updated method 3
 	UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error)
+	UpdateVerifyEmail(ctx context.Context, arg UpdateVerifyEmailParams) (VerifyEmail, error)
 }
 
 var _ Querier = (*Queries)(nil)
